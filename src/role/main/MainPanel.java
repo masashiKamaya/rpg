@@ -7,6 +7,8 @@ import java.awt.event.KeyListener;
 
 import javax.swing.JPanel;
 
+import role.data.Map;
+
 public class MainPanel extends JPanel implements Common, Runnable, KeyListener{
 
 	/**
@@ -26,6 +28,7 @@ public class MainPanel extends JPanel implements Common, Runnable, KeyListener{
 	private ActionKey zKey;
 	private ActionKey xKey;
 	private ActionKey enterKey;
+	private Map map;
 
 	public MainPanel(){
 		setPreferredSize(new Dimension(WIDTH, HEIGHT));
@@ -34,6 +37,7 @@ public class MainPanel extends JPanel implements Common, Runnable, KeyListener{
 		addKeyListener(this);
 
 		setActionKey();
+		setMap();
 
 		Thread loop = new Thread(this);
 		loop.start();
@@ -47,6 +51,10 @@ public class MainPanel extends JPanel implements Common, Runnable, KeyListener{
 		zKey = new ActionKey(ActionKey.INITIAL);
 		xKey = new ActionKey(ActionKey.INITIAL);
 		enterKey = new ActionKey(ActionKey.INITIAL);
+	}
+
+	private void setMap(){
+		map = new Map("/res/map/map0.map", "");
 	}
 
 	@Override
@@ -86,6 +94,17 @@ public class MainPanel extends JPanel implements Common, Runnable, KeyListener{
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
+		int offsetX = (COL / 2) * CHIP_SIZE;
+		offsetX = setOffset(offsetX, WIDTH, map.getWidth());
+		int offsetY = (ROW / 2) * CHIP_SIZE;
+		offsetY = setOffset(offsetY, HEIGHT, map.getHeight());
+		map.draw(g, offsetX, offsetY);
+	}
+
+	private int setOffset(int offset, int panelMax, int mapMax){
+		offset = Math.min(offset, 0);
+		offset = Math.max(offset, panelMax - mapMax);
+		return offset;
 	}
 
 	@Override
