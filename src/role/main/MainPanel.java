@@ -4,10 +4,12 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.Random;
 
 import javax.swing.JPanel;
 
 import role.data.Map;
+import role.data.Chara;
 
 public class MainPanel extends JPanel implements Common, Runnable, KeyListener{
 
@@ -20,6 +22,7 @@ public class MainPanel extends JPanel implements Common, Runnable, KeyListener{
 	public static final int ROW = COL;
 	public static final int WIDTH = COL * CHIP_SIZE;
 	public static final int HEIGHT = ROW * CHIP_SIZE;
+	private int count;
 
 	private ActionKey leftKey;
 	private ActionKey rightKey;
@@ -29,6 +32,8 @@ public class MainPanel extends JPanel implements Common, Runnable, KeyListener{
 	private ActionKey xKey;
 	private ActionKey enterKey;
 	private Map map;
+	private Chara chara;
+	private Random r;
 
 	public MainPanel(){
 		setPreferredSize(new Dimension(WIDTH, HEIGHT));
@@ -37,10 +42,13 @@ public class MainPanel extends JPanel implements Common, Runnable, KeyListener{
 		addKeyListener(this);
 
 		setActionKey();
+		setChara();
 		setMap();
+		r = new Random();
 
 		Thread loop = new Thread(this);
 		loop.start();
+		count = 0;
 	}
 
 	private void setActionKey(){
@@ -53,8 +61,14 @@ public class MainPanel extends JPanel implements Common, Runnable, KeyListener{
 		enterKey = new ActionKey(ActionKey.INITIAL);
 	}
 
+	private void setChara(){
+		chara = new Chara(0, 0, 0, 0, 4, 4);
+	}
+
 	private void setMap(){
 		map = new Map("/res/map/map0.map", "");
+		map.addChara(chara);
+		map.addChara(new Chara(1, 0, 0, 1, 5, 5));
 	}
 
 	@Override
@@ -72,14 +86,30 @@ public class MainPanel extends JPanel implements Common, Runnable, KeyListener{
 	}
 
 	private void checkInput(){
+		mainCheckInput();
+	}
+
+	private void mainCheckInput(){
 		if(leftKey.isPressed()){
-			System.out.println("left");
+			if(!chara.isMoving()){
+				chara.setDirection(LEFT);
+				chara.setMoving(true);
+			}
 		}else if(rightKey.isPressed()){
-			System.out.println("right");
+			if(!chara.isMoving()){
+				chara.setDirection(RIGHT);
+				chara.setMoving(true);
+			}
 		}else if(upKey.isPressed()){
-			System.out.println("up");
+			if(!chara.isMoving()){
+				chara.setDirection(UP);
+				chara.setMoving(true);
+			}
 		}else if(downKey.isPressed()){
-			System.out.println("down");
+			if(!chara.isMoving()){
+				chara.setDirection(DOWN);
+				chara.setMoving(true);
+			}
 		}else if(zKey.isPressed()){
 			System.out.println("z");
 		}else if(xKey.isPressed()){
@@ -89,14 +119,54 @@ public class MainPanel extends JPanel implements Common, Runnable, KeyListener{
 		}
 	}
 
-	private void update(){}
+	private void update(){
+		count++;
+		heroMove(count);
+		charaMove(count);
+	}
+
+	private void heroMove(int count){
+		if(leftKey.isPressed() || rightKey.isPressed() || upKey.isPressed() || downKey.isPressed() || chara.isMoving()){
+			chara.update(count);
+		}else{
+			chara.resetCount();
+		}
+
+		if(chara.isMoving()){
+			if(chara.move(map)){
+				//When the move is completed.
+			}
+		}
+	}
+
+	private void charaMove(int count){
+		for(Chara c : map.getCharas()){
+			switch(c.getMoveType()){
+				case 1:
+					if(c.isMoving()){
+						c.move(map);
+						c.update(count);
+						if(!c.isMoving()) c.resetCount();
+					}else if(r.nextDouble() < 0.1 && map.isMoveNoOne()){
+						c.setDirection(r.nextInt(4));
+						c.setMoving(true);
+					}
+					break;
+				case 2:
+					if(0.98 < r.nextDouble()){
+						c.setDirection(r.nextInt(4));
+					}
+					break;
+			}
+		}
+	}
 
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		int offsetX = (COL / 2) * CHIP_SIZE;
+		int offsetX = (COL / 2) * CHIP_SIZE - chara.getPx();
 		offsetX = setOffset(offsetX, WIDTH, map.getWidth());
-		int offsetY = (ROW / 2) * CHIP_SIZE;
+		int offsetY = (ROW / 2) * CHIP_SIZE - chara.getPy();
 		offsetY = setOffset(offsetY, HEIGHT, map.getHeight());
 		map.draw(g, offsetX, offsetY);
 	}
