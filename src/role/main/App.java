@@ -16,7 +16,7 @@ public class App extends JFrame{
 	}
 
 	public App(){
-		setTitle("reason");
+		setTitle("RPG");
 		setResizable(false);
 		getContentPane().add(new MainPanel());
 		pack();
