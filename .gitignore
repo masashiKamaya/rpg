@@ -4,3 +4,7 @@ bin/role/main/ActionKey.class
 bin/role/main/App.class
 bin/role/main/Common.class
 bin/role/main/MainPanel.class
+bin/role/event/Event.class
+bin/role/event/MoveEvent.class
+bin/role/manager/CsvManager.class
+bin/role/manager/MapManager.class
