@@ -168,11 +168,15 @@ public class MainPanel extends JPanel implements Common, Runnable, KeyListener{
 		Event e = map.getEvent(chara.getX(), chara.getY());
 		if(e instanceof MoveEvent){
 			MoveEvent m = (MoveEvent) e;
-			map.removeChara(chara);
-			chara.setMapNo(m.getDestMapNo());
-			chara.trans(m.getDestX(), m.getDestY(), DOWN);
-			map = MapManager.getInstance().getMap(chara.getMapNo());
-			map.addChara(chara);
+			if(chara.getMapNo() == m.getDestMapNo()){
+				chara.trans(m.getDestX(), m.getDestY(), DOWN);
+			}else{
+				map.removeChara(chara);
+				chara.setMapNo(m.getDestMapNo());
+				chara.trans(m.getDestX(), m.getDestY(), DOWN);
+				map = MapManager.getInstance().getMap(chara.getMapNo());
+				map.addChara(chara);
+			}
 		}
 	}
 
