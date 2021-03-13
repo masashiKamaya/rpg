@@ -9,6 +9,9 @@ import java.util.Random;
 import javax.swing.JPanel;
 
 import role.data.Map;
+import role.event.Event;
+import role.event.MoveEvent;
+import role.manager.MapManager;
 import role.data.Chara;
 
 public class MainPanel extends JPanel implements Common, Runnable, KeyListener{
@@ -66,9 +69,8 @@ public class MainPanel extends JPanel implements Common, Runnable, KeyListener{
 	}
 
 	private void setMap(){
-		map = new Map("/res/map/map0.map", "");
+		map = MapManager.getInstance().getMap(chara.getMapNo());
 		map.addChara(chara);
-		map.addChara(new Chara(1, 0, 0, 1, 5, 5));
 	}
 
 	@Override
@@ -135,6 +137,7 @@ public class MainPanel extends JPanel implements Common, Runnable, KeyListener{
 		if(chara.isMoving()){
 			if(chara.move(map)){
 				//When the move is completed.
+				checkMass();
 			}
 		}
 	}
@@ -158,6 +161,18 @@ public class MainPanel extends JPanel implements Common, Runnable, KeyListener{
 					}
 					break;
 			}
+		}
+	}
+
+	private void checkMass(){
+		Event e = map.getEvent(chara.getX(), chara.getY());
+		if(e instanceof MoveEvent){
+			MoveEvent m = (MoveEvent) e;
+			map.removeChara(chara);
+			chara.setMapNo(m.getDestMapNo());
+			chara.trans(m.getDestX(), m.getDestY(), DOWN);
+			map = MapManager.getInstance().getMap(chara.getMapNo());
+			map.addChara(chara);
 		}
 	}
 

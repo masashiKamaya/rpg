@@ -17,6 +17,7 @@ public class Chara implements role.main.Common {
 	private int beforeCount;
 	private int px, py;
 	private int mapNo;
+	private String key;
 	private String message;
 	private boolean isMoving;
 	private int moveSpd;
@@ -45,6 +46,14 @@ public class Chara implements role.main.Common {
 		}catch(IOException e){
 			e.printStackTrace();
 		}
+	}
+
+	public void trans(int x, int y, int direction){
+		this.x = x;
+		this.y = y;
+		px = x * CHIP_SIZE;
+		py = y * CHIP_SIZE;
+		this.direction = direction;
 	}
 
 	public boolean move(Map map){
@@ -238,6 +247,14 @@ public class Chara implements role.main.Common {
 
 	public int getMapNo() {
 		return mapNo;
+	}
+
+	public void setKey(String key){
+		this.key = key;
+	}
+
+	public String getKey(){
+		return key;
 	}
 
 	public void setMessage(String message){
